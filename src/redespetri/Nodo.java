@@ -13,6 +13,8 @@ import java.util.ArrayList;
  */
 public class Nodo {
 
+    boolean tieneW = false;
+    int suma = 0;
     ArrayList<Nodo> hijos;
     int[] marcado;
     Nodo padre;
@@ -25,10 +27,23 @@ public class Nodo {
         this.padre = padre;
         this.tranDisparada = tran;
         hijos = new ArrayList();
+        suma = sumarNodo();
     }
 
     public void setMarcado(int m[]) {
         this.marcado = m;
+    }
+
+    public int sumarNodo() {
+        suma = 0;
+        for (int i = 0; i < marcado.length; i++) {
+            if (marcado[i] == -1) {
+                tieneW=true;
+            } else {
+                suma += marcado[i];
+            }
+        }
+        return suma;
     }
 
     public void Print() {
@@ -49,6 +64,6 @@ public class Nodo {
             }
 
         }
-        return "\""+cad+"\"";
+        return "\"" + cad + "\"";
     }
 }
