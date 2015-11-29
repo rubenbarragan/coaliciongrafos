@@ -28,6 +28,7 @@ public class RedesPetri {
 
     String grafo_file = "digraph G {";
 
+    static boolean Conservativa=true;
     static boolean Acotada = true;
     static boolean LibreDeBloqueo = true;
     static int mi[][], pre[][], pos[][];
@@ -389,6 +390,19 @@ public class RedesPetri {
         return deadlock;
     }
 
+    public static void esEstrictamenteConservativa() {
+       int minit=LQ.get(0).suma;
+       
+        for (Nodo n : LQ) { //Checamos si hay algún nodo terminal en el arbol de covertura.
+            if (n.tieneW) {
+                Conservativa=false;
+            }
+            else if(!(n.suma==minit)){
+                Conservativa=false;
+            }
+        }
+    }
+    
     public boolean isinP(Nodo x) {
         for (int i = 0; i < LP.size(); i++) {
             if (LP.get(i).homomorfismo().equals(x.homomorfismo())) {
@@ -601,7 +615,13 @@ public class RedesPetri {
         } else {
             System.out.println("No Libre de bloqueo");
         }
-        
+        //ver si es conservativa
+        esEstrictamenteConservativa();
+        if (Conservativa) {
+            System.out.println("Estrictamente conservativa");
+        } else {
+            System.out.println("No es conservativa");
+        }
         System.out.println(LQ.get(9).homomorfismo()+" "+LQ.get(9).hijos.size());
     }
 }

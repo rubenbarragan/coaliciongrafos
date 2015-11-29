@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author HectorJalil
+ * @author HectorJalil, Edwin Jimenez, Ruben Barragan, Pedro, Ilse, Osvaldo, Diego
  */
 public class Nodo {
 
