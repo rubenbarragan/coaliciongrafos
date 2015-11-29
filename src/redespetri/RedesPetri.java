@@ -28,7 +28,8 @@ public class RedesPetri {
 
     String grafo_file = "digraph G {";
 
-    static boolean Conservativa=true;
+    static boolean Repetitiva = false;
+    static boolean Conservativa = true;
     static boolean Acotada = true;
     static boolean LibreDeBloqueo = true;
     static int mi[][], pre[][], pos[][];
@@ -302,27 +303,26 @@ public class RedesPetri {
                         markTemp[i] = padre.marcado[i] - pre[i][j] + pos[i][j];
                     }
                 }
-                
-                Nodo temp = new Nodo(markTemp, padre, t.get(j).name);
 
+                Nodo temp = new Nodo(markTemp, padre, t.get(j).name);
 
                 //verificar si ya existe
                 if (isinQ(temp) == null && isinP(temp) == null) {
 
                     padre.hijos.add(temp);//añadir el hijo
-                    
+
                     LP.add(temp);
                     mayoriza(temp);
                     //anadimos a grafo_file para el archivo node1 -> node2 [label="linea1"];
                     grafo_file += padre.homomorfismo() + " -> " + temp.homomorfismo() + "[label=\"" + temp.tranDisparada + "\"];";
                 } else {
-                    
-                    if(!(isinQ(temp)==null)){ //Está en Q
+
+                    if (!(isinQ(temp) == null)) { //Está en Q
                         padre.hijos.add(isinQ(temp));
                     } else { //Está en P.
                         padre.hijos.add(isinP(temp));
                     }
-                    
+
                     System.out.println("Ya existe");
                     grafo_file += padre.homomorfismo() + " -> " + temp.homomorfismo() + "[label=\"" + temp.tranDisparada + "\"];";
                 }
@@ -391,7 +391,7 @@ public class RedesPetri {
             //  deadlock = true;
             //}
             if (n.hijos.isEmpty()) {
-                System.out.println(n.homomorfismo()+"-"+n.hijos.isEmpty());
+                // System.out.println(n.homomorfismo() + "-" + n.hijos.isEmpty());
                 deadlock = true;
             }
         }
@@ -399,18 +399,17 @@ public class RedesPetri {
     }
 
     public static void esEstrictamenteConservativa() {
-       int minit=LQ.get(0).suma;
-       
+        int minit = LQ.get(0).suma;
+
         for (Nodo n : LQ) { //Checamos si hay algún nodo terminal en el arbol de covertura.
             if (n.tieneW) {
-                Conservativa=false;
-            }
-            else if(!(n.suma==minit)){
-                Conservativa=false;
+                Conservativa = false;
+            } else if (!(n.suma == minit)) {
+                Conservativa = false;
             }
         }
     }
-    
+
     public Nodo isinP(Nodo x) {
         for (int i = 0; i < LP.size(); i++) {
             if (LP.get(i).homomorfismo().equals(x.homomorfismo())) {
@@ -588,13 +587,23 @@ public class RedesPetri {
         return z;
     }
 
+    public static int[][] miTranspuesta() {
+        int mtran[][] = new int[t.size()][p.size()];
+        for (int i = 0; i < p.size(); i++) {
+            for (int j = 0; j < t.size(); j++) {
+                mtran[j][i] = mi[i][j];
+            }
+        }
+        return mtran;
+    }
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         RedesPetri m = new RedesPetri();
 
-        m.leerArchivo("redes/tresprocesos.xml");
+        m.leerArchivo("redes/petrinet3.xml");
         //generar nodos
         //eliminar comentario para poder realizar las pruebas
         m.primerMarcado();
@@ -602,16 +611,40 @@ public class RedesPetri {
         //System.out.println(LQ.size());
         ArrayList<int[]> inva = CalculaInvariantes(mi);
         System.out.println("P-invariantes");
-        for (int i = 0; i < inva.size(); i++) {
-            int mtem[] = inva.get(i);
-            for (int j = 0; j < mi.length; j++) {
-                System.out.print(mtem[j] + " ");
+        if (!inva.isEmpty()) {
+            for (int i = 0; i < inva.size(); i++) {
+                int mtem[] = inva.get(i);
+                for (int j = 0; j < mi.length; j++) {
+                    System.out.print(mtem[j] + " ");
+                }
+                System.out.println("");
             }
-            System.out.println("");
         }
-
         //  System.out.println(LQ.get(0).hijos.get(0).homomorfismo());
         // System.out.println(LQ.get(0).hijos.get(1).homomorfismo());
+        
+        // System.out.println(LQ.get(9).homomorfismo()+" "+LQ.get(9).hijos.size());
+
+        int transi[][] = miTranspuesta();
+        ArrayList<int[]> tinva = CalculaInvariantes(transi);
+        System.out.println("t-invariantes");
+        int ctaRepetitiva = 0;
+        if (!tinva.isEmpty()) {
+
+            for (int i = 0; i < tinva.size(); i++) {
+                int mtem[] = tinva.get(i);
+                for (int j = 0; j < t.size(); j++) {
+                   // System.out.print(mtem[j] + " ");
+                    if (mtem[j] == 1) {
+                        ctaRepetitiva++;
+                    }
+                }
+               // System.out.println("");
+            }
+        }
+        if (ctaRepetitiva == t.size()) {
+            Repetitiva = true;
+        }
         if (Acotada) {
             System.out.println("Acotada");
         } else {
@@ -630,6 +663,17 @@ public class RedesPetri {
         } else {
             System.out.println("No es conservativa");
         }
-        System.out.println(LQ.get(9).homomorfismo()+" "+LQ.get(9).hijos.size());
+        if (Repetitiva) {
+            System.out.println("Si es repetitiva");
+        }
+        else{
+            System.out.println("No es repetitiva");
+        }
+        /* for (int i = 0; i < t.size(); i++) {
+         for (int j = 0; j < p.size(); j++) {
+         System.out.print(transi[i][j]);
+         }System.out.println("");
+         }*/
+
     }
 }
