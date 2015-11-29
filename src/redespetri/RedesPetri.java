@@ -302,19 +302,27 @@ public class RedesPetri {
                         markTemp[i] = padre.marcado[i] - pre[i][j] + pos[i][j];
                     }
                 }
+                
                 Nodo temp = new Nodo(markTemp, padre, t.get(j).name);
+
+
                 //verificar si ya existe
-                
-               
-                padre.hijos.add(temp);//añadir el hijo
-                
-                if (!isinQ(temp) && !isinP(temp)) {
+                if (isinQ(temp) == null && isinP(temp) == null) {
+
+                    padre.hijos.add(temp);//añadir el hijo
                     
                     LP.add(temp);
                     mayoriza(temp);
                     //anadimos a grafo_file para el archivo node1 -> node2 [label="linea1"];
                     grafo_file += padre.homomorfismo() + " -> " + temp.homomorfismo() + "[label=\"" + temp.tranDisparada + "\"];";
                 } else {
+                    
+                    if(!(isinQ(temp)==null)){ //Está en Q
+                        padre.hijos.add(isinQ(temp));
+                    } else { //Está en P.
+                        padre.hijos.add(isinP(temp));
+                    }
+                    
                     System.out.println("Ya existe");
                     grafo_file += padre.homomorfismo() + " -> " + temp.homomorfismo() + "[label=\"" + temp.tranDisparada + "\"];";
                 }
@@ -361,18 +369,18 @@ public class RedesPetri {
         }
     }
 
-    public boolean isinQ(Nodo x) {
+    public Nodo isinQ(Nodo x) {
         for (int i = 0; i < LQ.size(); i++) {
             if (LQ.get(i).homomorfismo().equals(x.homomorfismo())) {
                 //LQ.get(i).homomorfismo().equals(x.homomorfismo())
                 LQ.get(i).Duplicado = true;
 
-                return true;
+                return LQ.get(i);
 
             }
 
         }
-        return false;
+        return null;
     }
 
     public static boolean esLibreDeBloqueo() {
@@ -403,18 +411,18 @@ public class RedesPetri {
         }
     }
     
-    public boolean isinP(Nodo x) {
+    public Nodo isinP(Nodo x) {
         for (int i = 0; i < LP.size(); i++) {
             if (LP.get(i).homomorfismo().equals(x.homomorfismo())) {
                 //LQ.get(i).homomorfismo().equals(x.homomorfismo())
                 LP.get(i).Duplicado = true;
 
-                return true;
+                return LP.get(i);
 
             }
 
         }
-        return false;
+        return null;
     }
 
     public void primerMarcado() {
