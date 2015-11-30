@@ -1,1 +1,1 @@
-digraph G {"1000" -> "0100"[label="T0"];"0100" -> "100w"[label="T1"];"100w" -> "010w"[label="T0"];"010w" -> "100w"[label="T1"];"010w" -> "001w"[label="T2"];}
+digraph G {"1000" -> "0010"[label="T0"];"0010" -> "w000"[label="T1"];"w000" -> "w0w0"[label="T0"];"w000" -> "ww00"[label="T2"];"w0w0" -> "w0w0"[label="T0"];"w0w0" -> "w0w0"[label="T1"];"w0w0" -> "www0"[label="T2"];"ww00" -> "www0"[label="T0"];"ww00" -> "ww00"[label="T2"];"ww00" -> "ww00"[label="T3"];"www0" -> "www0"[label="T0"];"www0" -> "www0"[label="T1"];"www0" -> "www0"[label="T2"];"www0" -> "www0"[label="T3"];}
