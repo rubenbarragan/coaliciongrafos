@@ -492,7 +492,87 @@ public class RedesPetri {
         }
     }
 
-    public static ArrayList CalculaInvariantes(int[][] mi) {
+       public static ArrayList CalculaTInvariantes(int[][] mi) {
+        ArrayList<int[]> invariantsTemp = new ArrayList();//se usa para iterar
+        ArrayList<int[]> invariants = new ArrayList();//devuelve t o p -invariantes
+
+        boolean end = true;
+//generar lista de vectores para poder iterar
+        for (int i = 0; i < mi.length; i++) {
+            int[] temp = new int[mi.length + p.size()];
+            temp[i] = 1;
+            for (int j = 0; j < p.size(); j++) {
+                temp[mi.length + j] = mi[i][j];
+            }
+            invariantsTemp.add(temp);
+        }
+/////////////////////////////////
+        int j = 0; //indica la columna que se esta convirtiendo a 0
+
+        while (!invariantsTemp.isEmpty() && end) {
+
+            //obtener primer vector de la lista
+            int index = invariantsTemp.size();
+            for (int indi = 0; indi < index; indi++) {
+
+                int m[] = invariantsTemp.get(0);
+                //verificamos si ya es un invariante
+                int cont = 0;
+                for (int k = 0; k < p.size(); k++) {
+                    if (m[mi.length + k] == 0) {
+                        cont++;
+                    }
+                }
+                if (cont == p.size()) {
+                    invariants.add(invariantsTemp.remove(0));
+                } else {
+                    //mi.length + t.size(), comenzar despues de la matriz identidad
+                    int listaSize = invariantsTemp.size();
+
+                    for (int i = 1; i < listaSize; i++) {//i es el renglon
+                        int n[] = invariantsTemp.get(i);
+                        if (m[mi.length + j] != 0 && m[mi.length + j] + n[mi.length + j] == 0) {
+                            //si alguna posicion sumada da 0 se suma el vector
+                            int mt1[] = sumaVector(m, n);
+                            if (mt1[0] == 5) {
+                                end = false;
+                            }
+                            /*    int c=0;
+                             for (int tempo= 0; tempo<t.size();tempo++){
+                             if(mt1[mi.length+tempo]==0)
+                             c++;
+                             }
+                             if(c==t.size()){
+                             invariants.add(mt1);
+                             }else{*/
+                            invariantsTemp.add(mt1);//}
+                        }
+
+                    }
+                    //una vez que se generan los que pueden generarse
+                    if (m[mi.length + j] != 0) {
+                        invariantsTemp.remove(0);
+                    } else {
+                        invariantsTemp.add(invariantsTemp.remove(0));
+                    }
+                }
+            }
+            ////////////////////////////////////////////   
+            for (int i = 0; i < invariantsTemp.size(); i++) {
+                int mtemp[] = invariantsTemp.get(i);
+                for (int jk = 0; jk < mi.length + p.size(); jk++) {
+
+                    System.out.print(mtemp[jk] + " ");
+                }
+                System.out.println("");
+            }
+            System.out.println("");
+            j++;
+        }//fin del while
+        return invariants;
+    }
+    
+    public static ArrayList CalculaPInvariantes(int[][] mi) {
         ArrayList<int[]> invariantsTemp = new ArrayList();//se usa para iterar
         ArrayList<int[]> invariants = new ArrayList();//devuelve t o p -invariantes
 
@@ -662,7 +742,7 @@ public class RedesPetri {
     public static void main(String[] args) {
         RedesPetri m = new RedesPetri();
 
-        m.leerArchivo("redes/no acotada 3 estados.xml");
+        m.leerArchivo("redes/ejemplo.xml");
         //generar nodos
         //eliminar comentario para poder realizar las pruebas
         m.primerMarcado();
@@ -670,7 +750,7 @@ public class RedesPetri {
         ArrayList<Nodo> LQt = computeGt();
 
         //System.out.println(LQ.size());
-        ArrayList<int[]> inva = CalculaInvariantes(mi);
+        ArrayList<int[]> inva = CalculaPInvariantes(mi);
         System.out.println("P-invariantes");
         if (!inva.isEmpty()) {
             for (int i = 0; i < inva.size(); i++) {
@@ -681,12 +761,16 @@ public class RedesPetri {
                 System.out.println("");
             }
         }
+        else{
+            System.out.println("No se obtuvieron p-invariantes");
+        }
         //  System.out.println(LQ.get(0).hijos.get(0).homomorfismo());
         // System.out.println(LQ.get(0).hijos.get(1).homomorfismo());
 
         // System.out.println(LQ.get(9).homomorfismo()+" "+LQ.get(9).hijos.size());
-        /*int transi[][] = miTranspuesta();
-        ArrayList<int[]> tinva = CalculaInvariantes(transi);
+        int transi[][] = miTranspuesta();
+        System.out.println("Calculo de t invariantes");
+        ArrayList<int[]> tinva = CalculaTInvariantes(transi);
         System.out.println("t-invariantes");
         int ctaRepetitiva = 0;
         if (!tinva.isEmpty()) {
@@ -694,18 +778,21 @@ public class RedesPetri {
             for (int i = 0; i < tinva.size(); i++) {
                 int mtem[] = tinva.get(i);
                 for (int j = 0; j < t.size(); j++) {
-                    // System.out.print(mtem[j] + " ");
+                     System.out.print(mtem[j] + " ");
                     if (mtem[j] == 1) {
                         ctaRepetitiva++;
                     }
                 }
-                // System.out.println("");
+                System.out.println("");
             }
+        }
+         else{
+            System.out.println("No se obtuvieron t-invariantes");
         }
         if (ctaRepetitiva == t.size()) {
             Repetitiva = true;
         }
-        */
+        
         if (Acotada) {
             System.out.println("Acotada");
         } else {
