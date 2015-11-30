@@ -21,6 +21,9 @@ public class Nodo {
     String tranDisparada;
     boolean Terminal = false;
     boolean Duplicado = false;
+    String color;
+    int tiempoInicial;
+    int tiempoFinal;
 
     public Nodo(int[] marcado, Nodo padre, String tran) {
         this.marcado = marcado;
@@ -28,6 +31,9 @@ public class Nodo {
         this.tranDisparada = tran;
         hijos = new ArrayList();
         suma = sumarNodo();
+        this.color = "WHITE";
+        this.tiempoInicial = 0;
+        this.tiempoFinal = 0;
     }
 
     public void setMarcado(int m[]) {

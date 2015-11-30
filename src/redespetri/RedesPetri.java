@@ -41,7 +41,8 @@ public class RedesPetri {
     static ArrayList<arco> a = new ArrayList();
     static ArrayList<Nodo> LP = new ArrayList();//lista de nodos que se van formando, pendientes
     static ArrayList<Nodo> LQ = new ArrayList();//nodos ya procesados
-
+    static ArrayList<Nodo> copiaLQdesendiente = new ArrayList();//nodos ya procesados
+    static int time = 0;
     public void leerArchivo(String file) {
         try {
 
@@ -305,14 +306,13 @@ public class RedesPetri {
                 }
 
                 Nodo temp = new Nodo(markTemp, padre, t.get(j).name);
-
+                mayoriza(temp);
                 //verificar si ya existe
                 if (isinQ(temp) == null && isinP(temp) == null) {
-
+                    
                     padre.hijos.add(temp);//añadir el hijo
 
                     LP.add(temp);
-                    mayoriza(temp);
                     //anadimos a grafo_file para el archivo node1 -> node2 [label="linea1"];
                     grafo_file += padre.homomorfismo() + " -> " + temp.homomorfismo() + "[label=\"" + temp.tranDisparada + "\"];";
                 } else {
@@ -625,14 +625,44 @@ public class RedesPetri {
         }
         return aux;
     }
+    public static int DFS() {
+        ArrayList<Nodo> copiaLQ = LQ;
+        time = 0;
+        for (Nodo nodo : copiaLQ) {
+            nodo.padre = null;
+            nodo.color = "WHITE";
+        }
+        //for(Nodo nodoTemp : copiaLQ){
+        //   if(nodoTemp.color.equals("WHITE"));{
+        DFS_Visit(copiaLQ.get(0));
+        //   }
+        //}
+        return 0;
+    }
 
+    public static int DFS_Visit(Nodo nodoTemp) {
+        time = time + 1;
+        nodoTemp.tiempoInicial = time;
+        nodoTemp.color = "GRAY";
+        for (int h = 0; h < nodoTemp.hijos.size(); h++) {
+            if (nodoTemp.hijos.get(h).color.equals("WHITE")) {
+                nodoTemp.padre = nodoTemp;
+                DFS_Visit(nodoTemp.hijos.get(h));
+            }
+        }
+        nodoTemp.color = "BLACK";
+        time = time + 1;
+        nodoTemp.tiempoFinal = time;
+        copiaLQdesendiente.add(nodoTemp);
+        return 0;
+    }
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         RedesPetri m = new RedesPetri();
 
-        m.leerArchivo("redes/petrinet3.xml");
+        m.leerArchivo("redes/no acotada 3 estados.xml");
         //generar nodos
         //eliminar comentario para poder realizar las pruebas
         m.primerMarcado();
@@ -655,7 +685,7 @@ public class RedesPetri {
         // System.out.println(LQ.get(0).hijos.get(1).homomorfismo());
 
         // System.out.println(LQ.get(9).homomorfismo()+" "+LQ.get(9).hijos.size());
-        int transi[][] = miTranspuesta();
+        /*int transi[][] = miTranspuesta();
         ArrayList<int[]> tinva = CalculaInvariantes(transi);
         System.out.println("t-invariantes");
         int ctaRepetitiva = 0;
@@ -675,6 +705,7 @@ public class RedesPetri {
         if (ctaRepetitiva == t.size()) {
             Repetitiva = true;
         }
+        */
         if (Acotada) {
             System.out.println("Acotada");
         } else {
@@ -703,6 +734,15 @@ public class RedesPetri {
          System.out.print(transi[i][j]);
          }System.out.println("");
          }*/
-
+        DFS();
+        for (int i = 0; i < copiaLQdesendiente.size(); i++) {
+            System.out.println("-------  " + copiaLQdesendiente.get(i).homomorfismo() 
+                    + " -----t inicial  " + copiaLQdesendiente.get(i).tiempoInicial
+                    + "------ t final  " + copiaLQdesendiente.get(i).tiempoFinal);
+            //System.out.println("estado  " + LQ.get(i).homomorfismo());
+        }
+        for (int i = 0; i < LQ.size(); i++) {
+            System.out.println("estado  " + LQ.get(i).homomorfismo());
+        }
     }
 }
