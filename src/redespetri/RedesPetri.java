@@ -597,6 +597,35 @@ public class RedesPetri {
         return mtran;
     }
 
+    public static ArrayList<Nodo> computeGt() {
+        ArrayList<Nodo> LQt = new ArrayList<Nodo>();
+        for (Nodo n : LQ) { //Para crear la lista transpuesta.
+            LQt.add(new Nodo(n.marcado, null, n.tranDisparada));
+        }
+
+        for (Nodo nodo : LQ) {
+            for (Nodo hijo : nodo.hijos) {
+
+                Nodo temp = getNodoT(hijo.marcado, LQt);
+                temp.hijos.add(getNodoT(nodo.marcado, LQt));
+
+            }
+        }
+
+        System.out.println();
+        return LQt;
+    }
+
+    public static Nodo getNodoT(int[] marcado, ArrayList<Nodo> LQt) {
+        Nodo aux = null;
+        for (Nodo nodo : LQt) {
+            if (nodo.marcado == marcado) {
+                aux = nodo;
+            }
+        }
+        return aux;
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -607,6 +636,8 @@ public class RedesPetri {
         //generar nodos
         //eliminar comentario para poder realizar las pruebas
         m.primerMarcado();
+
+        ArrayList<Nodo> LQt = computeGt();
 
         //System.out.println(LQ.size());
         ArrayList<int[]> inva = CalculaInvariantes(mi);
@@ -622,9 +653,8 @@ public class RedesPetri {
         }
         //  System.out.println(LQ.get(0).hijos.get(0).homomorfismo());
         // System.out.println(LQ.get(0).hijos.get(1).homomorfismo());
-        
-        // System.out.println(LQ.get(9).homomorfismo()+" "+LQ.get(9).hijos.size());
 
+        // System.out.println(LQ.get(9).homomorfismo()+" "+LQ.get(9).hijos.size());
         int transi[][] = miTranspuesta();
         ArrayList<int[]> tinva = CalculaInvariantes(transi);
         System.out.println("t-invariantes");
@@ -634,12 +664,12 @@ public class RedesPetri {
             for (int i = 0; i < tinva.size(); i++) {
                 int mtem[] = tinva.get(i);
                 for (int j = 0; j < t.size(); j++) {
-                   // System.out.print(mtem[j] + " ");
+                    // System.out.print(mtem[j] + " ");
                     if (mtem[j] == 1) {
                         ctaRepetitiva++;
                     }
                 }
-               // System.out.println("");
+                // System.out.println("");
             }
         }
         if (ctaRepetitiva == t.size()) {
@@ -665,8 +695,7 @@ public class RedesPetri {
         }
         if (Repetitiva) {
             System.out.println("Si es repetitiva");
-        }
-        else{
+        } else {
             System.out.println("No es repetitiva");
         }
         /* for (int i = 0; i < t.size(); i++) {
