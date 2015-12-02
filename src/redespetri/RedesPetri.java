@@ -492,9 +492,9 @@ public class RedesPetri {
             String dotPath = "C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe";
 
             String fileInputPath = "grafo.txt";
-            String fileOutputPath = "grafo.pdf";
+            String fileOutputPath = "grafo2.png";
 
-            String tParam = "-Tpdf";
+            String tParam = "-Tpng";
             String tOParam = "-o";
 
             String[] cmd = new String[5];
@@ -861,7 +861,7 @@ public class RedesPetri {
         return numTenTinv;
     }
 
-    public static void esViva() {
+    public static void esReversible() {
         //copiaLQ = new ArrayList<>(LQ);
         //DFS(copiaLQ, copiaLQ.get(0));
         ArrayList<Nodo> G_transpuesta = computeGt();
@@ -874,7 +874,7 @@ public class RedesPetri {
         }
     }
 
-    public static void esReversible() {
+    public static void esViva() {
         if (copiaLQdesendiente.size() == LQ.size() && t_disparados.size() == t.size()) {
             System.out.print("Es viva\n");
         } else {
@@ -958,8 +958,9 @@ public class RedesPetri {
         } else {
             System.out.println("No es repetitiva");
         }
-        esViva();
         esReversible();
+        esViva();
+        
         /* for (int i = 0; i < t.size(); i++) {
          for (int j = 0; j < p.size(); j++) {
          System.out.print(transi[i][j]);

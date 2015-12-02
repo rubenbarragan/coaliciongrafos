@@ -168,7 +168,7 @@
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="249" y="65" curvePoint="false"/>
+<arcpath id="000" x="248" y="66" curvePoint="false"/>
 <arcpath id="001" x="292" y="97" curvePoint="false"/>
 <type value="normal"/>
 </arc>
@@ -207,8 +207,8 @@
 <tagged>
 <value>false</value>
 </tagged>
-<arcpath id="000" x="185" y="314" curvePoint="false"/>
-<arcpath id="001" x="231" y="242" curvePoint="false"/>
+<arcpath id="000" x="184" y="314" curvePoint="false"/>
+<arcpath id="001" x="231" y="237" curvePoint="false"/>
 <type value="normal"/>
 </arc>
 <arc id="T0 to P1" source="T0" target="P1">
