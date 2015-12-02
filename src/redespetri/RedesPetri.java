@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,6 +45,7 @@ public class RedesPetri {
     static ArrayList<Nodo> LQ = new ArrayList();//nodos ya procesados
     static ArrayList<Nodo> copiaLQdesendiente = new ArrayList<>();//nodos ya procesados
     static int time = 0;
+
     public void leerArchivo(String file) {
         try {
 
@@ -310,17 +312,17 @@ public class RedesPetri {
                 mayoriza(temp);
                 //verificar si ya existe
                 if (isinQ(temp) == null && isinP(temp) == null) {
-                    
+
                     padre.hijos.add(temp);//añadir el hijo
 
                     LP.add(temp);
 
-                    if(t_disparados.contains(temp.tranDisparada)==false){
+                    if (t_disparados.contains(temp.tranDisparada) == false) {
                         t_disparados.add(temp.tranDisparada);
-                    }   
+                    }
                     //anadimos a grafo_file para el archivo node1 -> node2 [label="linea1"];
                     grafo_file += padre.homomorfismo() + " -> " + temp.homomorfismo() + "[label=\"" + temp.tranDisparada + "\"];";
-                    
+
                 } else {
 
                     if (!(isinQ(temp) == null)) { //Está en Q
@@ -328,9 +330,9 @@ public class RedesPetri {
                     } else { //Está en P.
                         padre.hijos.add(isinP(temp));
                     }
-                    if(t_disparados.contains(temp.tranDisparada)==false){
+                    if (t_disparados.contains(temp.tranDisparada) == false) {
                         t_disparados.add(temp.tranDisparada);
-                    }   
+                    }
                     //System.out.println("Ya existe");
                     grafo_file += padre.homomorfismo() + " -> " + temp.homomorfismo() + "[label=\"" + temp.tranDisparada + "\"];";
                 }
@@ -384,7 +386,7 @@ public class RedesPetri {
             }
             repetido = false;
             temp = temp.padre;
-            }
+        }
     }
 
     public Nodo isinQ(Nodo x) {
@@ -458,7 +460,7 @@ public class RedesPetri {
             generarMarcados(LP.get(0));
         }
 
-        grafo_file += "}";
+////        grafo_file += "}";
         try {
             //System.out.println(grafo_file);
             guardar(grafo_file);
@@ -510,12 +512,11 @@ public class RedesPetri {
         }
     }
 
-       public static ArrayList CalculaTInvariantes(int[][] mi) {
+    public static ArrayList CalculaTInvariantes(int[][] mi) {
         ArrayList<int[]> invariantsTemp = new ArrayList();//se usa para iterar
         ArrayList<int[]> invariants = new ArrayList();//devuelve t o p -invariantes
 
-        boolean end = true;
-//generar lista de vectores para poder iterar
+        //generar lista de vectores para poder iterar
         for (int i = 0; i < mi.length; i++) {
             int[] temp = new int[mi.length + p.size()];
             temp[i] = 1;
@@ -525,77 +526,84 @@ public class RedesPetri {
             invariantsTemp.add(temp);
         }
 /////////////////////////////////
-        int j = 0; //indica la columna que se esta convirtiendo a 0
+        int cont = 0;
+        int multiploActual = 1;
+        int multiploTemp = 1;
+        int filaTemp[] = new int[mi.length + p.size()];
+        int filaActual[] = new int[mi.length + p.size()];
+        int filasAeliminar[]=new int[invariantsTemp.size()];
+        Arrays.fill(filasAeliminar, 0);
 
-        while (!invariantsTemp.isEmpty() && end) {
-
-            //obtener primer vector de la lista
-            int index = invariantsTemp.size();
-            for (int indi = 0; indi < index; indi++) {
-
-                int m[] = invariantsTemp.get(0);
-                //verificamos si ya es un invariante
-                int cont = 0;
+        for (int columna = mi.length; columna < mi.length + p.size(); columna++) {
+            for (int tmpo = 0 ; tmpo < invariantsTemp.size() ; tmpo++) {
+                filaTemp = invariantsTemp.get(tmpo);
                 for (int k = 0; k < p.size(); k++) {
-                    if (m[mi.length + k] == 0) {
+                    if (filaTemp[mi.length + k] == 0) {
                         cont++;
                     }
                 }
                 if (cont == p.size()) {
-                    invariants.add(invariantsTemp.remove(0));
-                } else {
-                    //mi.length + t.size(), comenzar despues de la matriz identidad
-                    int listaSize = invariantsTemp.size();
-
-                    for (int i = 1; i < listaSize; i++) {//i es el renglon
-                        int n[] = invariantsTemp.get(i);
-                        if (m[mi.length + j] != 0 && m[mi.length + j] + n[mi.length + j] == 0) {
-                            //si alguna posicion sumada da 0 se suma el vector
-                            int mt1[] = sumaVector(m, n);
-                            if (mt1[0] == 5) {
-                                end = false;
+                    invariants.add(invariantsTemp.remove(tmpo));
+                }
+                cont = 0;
+            }
+            for (int fila = 0; fila < invariantsTemp.size(); fila++) {
+                filaActual = invariantsTemp.get(fila);
+                if (filaActual[columna] != 0) {
+                    for (int i = fila + 1; i < invariantsTemp.size(); i++) {
+                        filaTemp = invariantsTemp.get(i);
+                        
+                        if (filaActual[columna] > 0 && filaTemp[columna] < 0) {
+                            if (filaActual[columna] % filaTemp[columna] == 0) {
+                                multiploTemp = filaActual[columna] / filaTemp[columna];
+                                if (multiploTemp < 0) {
+                                    multiploTemp = multiploTemp * (-1);
+                                }
+                                int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                invariantsTemp.add(mt1);
+                                filasAeliminar[fila]=1;
+                                filasAeliminar[i]=1;
                             }
-                            /*    int c=0;
-                             for (int tempo= 0; tempo<t.size();tempo++){
-                             if(mt1[mi.length+tempo]==0)
-                             c++;
-                             }
-                             if(c==t.size()){
-                             invariants.add(mt1);
-                             }else{*/
-                            invariantsTemp.add(mt1);//}
+                        } else if (filaActual[columna] < 0 && filaTemp[columna] > 0) {
+                            if (filaTemp[columna] % filaActual[columna] == 0) {
+                                multiploActual = filaTemp[columna] / filaActual[columna];
+                                if (multiploActual < 0) {
+                                    multiploActual = multiploActual * (-1);
+                                }
+                                int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                invariantsTemp.add(mt1);
+                                filasAeliminar[fila]=1;
+                                filasAeliminar[i]=1;
+                            }
                         }
-
-                    }
-                    //una vez que se generan los que pueden generarse
-                    if (m[mi.length + j] != 0) {
-                        invariantsTemp.remove(0);
-                    } else {
-                        invariantsTemp.add(invariantsTemp.remove(0));
+                        multiploActual = 1;
+                        multiploTemp = 1;
                     }
                 }
             }
-            ////////////////////////////////////////////   
-            for (int i = 0; i < invariantsTemp.size(); i++) {
-                int mtemp[] = invariantsTemp.get(i);
-                for (int jk = 0; jk < mi.length + p.size(); jk++) {
-
-                    //System.out.print(mtemp[jk] + " ");
+            //eliminar las filas utilizadas
+            for (int x = filasAeliminar.length-1 ; x >=0; x--) {
+                if(filasAeliminar[x]==1){
+                    invariantsTemp.remove(x);
                 }
-                //System.out.println("");
             }
-            //System.out.println("");
-            j++;
+            Arrays.fill(filasAeliminar, 0);
+            //eliminar las filas diferentes de cero que no pudiero ser quitadas
+            for (int y = 0 ; y< invariantsTemp.size(); y++) {
+                filaTemp = invariantsTemp.get(y);
+                if(filaTemp[columna]!=0){
+                    invariantsTemp.remove(y);
+                }
+            }
         }//fin del while
         return invariants;
     }
-    
+
     public static ArrayList CalculaPInvariantes(int[][] mi) {
-        ArrayList<int[]> invariantsTemp = new ArrayList();//se usa para iterar
+                ArrayList<int[]> invariantsTemp = new ArrayList();//se usa para iterar
         ArrayList<int[]> invariants = new ArrayList();//devuelve t o p -invariantes
 
-        boolean end = true;
-//generar lista de vectores para poder iterar
+        //generar lista de vectores para poder iterar
         for (int i = 0; i < mi.length; i++) {
             int[] temp = new int[mi.length + t.size()];
             temp[i] = 1;
@@ -605,82 +613,83 @@ public class RedesPetri {
             invariantsTemp.add(temp);
         }
 /////////////////////////////////
-        int j = 0; //indica la columna que se esta convirtiendo a 0
+        int cont = 0;
+        int multiploActual = 1;
+        int multiploTemp = 1;
+        int filaTemp[] = new int[mi.length + t.size()];
+        int filaActual[] = new int[mi.length + t.size()];
+        int filasAeliminar[]=new int[invariantsTemp.size()];
+        Arrays.fill(filasAeliminar, 0);
 
-        while (!invariantsTemp.isEmpty() && end) {
-
-            //obtener primer vector de la lista
-            int index = invariantsTemp.size();
-            for (int indi = 0; indi < index; indi++) {
-
-                int m[] = invariantsTemp.get(0);
-                //verificamos si ya es un invariante
-                int cont = 0;
+        for (int columna = mi.length; columna < mi.length + t.size(); columna++) {
+            for (int tmpo = 0 ; tmpo < invariantsTemp.size() ; tmpo++) {
+                filaTemp = invariantsTemp.get(tmpo);
                 for (int k = 0; k < t.size(); k++) {
-                    if (m[mi.length + k] == 0) {
+                    if (filaTemp[mi.length + k] == 0) {
                         cont++;
                     }
                 }
-                if (cont == t.size()) {
-                    invariants.add(invariantsTemp.remove(0));
-                } else {
-                    //mi.length + t.size(), comenzar despues de la matriz identidad
-                    int listaSize = invariantsTemp.size();
-
-                    for (int i = 1; i < listaSize; i++) {//i es el renglon
-                        int n[] = invariantsTemp.get(i);
-                        if (m[mi.length + j] != 0 && m[mi.length + j] + n[mi.length + j] == 0) {
-                            //si alguna posicion sumada da 0 se suma el vector
-                            int mt1[] = sumaVector(m, n);
-                            if (mt1[0] == 5) {
-                                end = false;
+                if (cont == p.size()) {
+                    invariants.add(invariantsTemp.remove(tmpo));
+                }
+                cont = 0;
+            }
+            for (int fila = 0; fila < invariantsTemp.size(); fila++) {
+                filaActual = invariantsTemp.get(fila);
+                if (filaActual[columna] != 0) {
+                    for (int i = fila + 1; i < invariantsTemp.size(); i++) {
+                        filaTemp = invariantsTemp.get(i);
+                        
+                        if (filaActual[columna] > 0 && filaTemp[columna] < 0) {
+                            if (filaActual[columna] % filaTemp[columna] == 0) {
+                                multiploTemp = filaActual[columna] / filaTemp[columna];
+                                if (multiploTemp < 0) {
+                                    multiploTemp = multiploTemp * (-1);
+                                }
+                                int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                invariantsTemp.add(mt1);
+                                filasAeliminar[fila]=1;
+                                filasAeliminar[i]=1;
                             }
-                            /*    int c=0;
-                             for (int tempo= 0; tempo<t.size();tempo++){
-                             if(mt1[mi.length+tempo]==0)
-                             c++;
-                             }
-                             if(c==t.size()){
-                             invariants.add(mt1);
-                             }else{*/
-                            invariantsTemp.add(mt1);//}
+                        } else if (filaActual[columna] < 0 && filaTemp[columna] > 0) {
+                            if (filaTemp[columna] % filaActual[columna] == 0) {
+                                multiploActual = filaTemp[columna] / filaActual[columna];
+                                if (multiploActual < 0) {
+                                    multiploActual = multiploActual * (-1);
+                                }
+                                int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                invariantsTemp.add(mt1);
+                                filasAeliminar[fila]=1;
+                                filasAeliminar[i]=1;
+                            }
                         }
-
-                    }
-                    //una vez que se generan los que pueden generarse
-                    if (m[mi.length + j] != 0) {
-                        invariantsTemp.remove(0);
-                    } else {
-                        invariantsTemp.add(invariantsTemp.remove(0));
+                        multiploActual = 1;
+                        multiploTemp = 1;
                     }
                 }
             }
-            ////////////////////////////////////////////   
-            for (int i = 0; i < invariantsTemp.size(); i++) {
-                int mtemp[] = invariantsTemp.get(i);
-                for (int jk = 0; jk < mi.length + t.size(); jk++) {
-
-                    //System.out.print(mtemp[jk] + " ");
+            //eliminar las filas utilizadas
+            for (int x = filasAeliminar.length-1 ; x >=0; x--) {
+                if(filasAeliminar[x]==1){
+                    invariantsTemp.remove(x);
                 }
-                //System.out.println("");
             }
-            //System.out.println("");
-            j++;
+            Arrays.fill(filasAeliminar, 0);
+            //eliminar las filas diferentes de cero que no pudiero ser quitadas
+            for (int y = 0 ; y< invariantsTemp.size(); y++) {
+                filaTemp = invariantsTemp.get(y);
+                if(filaTemp[columna]!=0){
+                    invariantsTemp.remove(y);
+                }
+            }
         }//fin del while
         return invariants;
     }
 
-    public static int[] sumaVector(int[] m, int n[]) {
+    public static int[] sumaVector(int multiploM, int[] m, int multiploN, int n[]) {
         int z[] = new int[m.length];
-        int sum = 0;
         for (int i = 0; i < m.length; i++) {
-            // z[i] = m[i] + n[i];
-            sum = m[i] + n[i];
-            if (sum > 1 && i < mi.length + t.size()) {
-                z[0] = 5;
-            } else {
-                z[i] = sum;
-            }
+            z[i] = multiploM * m[i] + multiploN * n[i];
         }
         return z;
     }
@@ -723,6 +732,7 @@ public class RedesPetri {
         }
         return aux;
     }
+
     public static int DFS(ArrayList<Nodo> G, Nodo u) {
         time = 0;
         for (Nodo nodo : G) {
@@ -739,7 +749,7 @@ public class RedesPetri {
     }
 
     public static int DFS_Visit(Nodo nodoTemp) {
-        String trans ="";
+        String trans = "";
         time = time + 1;
         nodoTemp.tiempoInicial = time;
         nodoTemp.color = "GRAY";
@@ -753,52 +763,52 @@ public class RedesPetri {
         time = time + 1;
         nodoTemp.tiempoFinal = time;
         copiaLQdesendiente.add(nodoTemp);
-        
-        
+
         return 0;
     }
-    public static int numeroTenTinvariant (){
+
+    public static int numeroTenTinvariant() {
         int transi[][] = miTranspuesta();
         ArrayList<int[]> tinva = CalculaTInvariantes(transi);
-        int sumTinv[] = new int[tinva.get(0).length];
+        int sumTinv[] = new int[t.size()];
         int numTenTinv = 0;
-        
-        
-        for(int [] tinv : tinva){
+
+        for (int[] tinv : tinva) {
             for (int i = 0; i < tinv.length; i++) {
-                if (tinv[i] == 1) {
-                    sumTinv[i] = tinv[i];
+                if (tinv[i] > 0) {
+                    sumTinv[i] += tinv[i];
                 }
             }
         }
         for (int j = 0; j < sumTinv.length; j++) {
-            numTenTinv = numTenTinv + sumTinv[j];
+            if (sumTinv[j] > 0) {
+                numTenTinv++;
+            }
         }
         return numTenTinv;
     }
-    
-    public static void esViva(){
+
+    public static void esViva() {
         //copiaLQ = new ArrayList<>(LQ);
         //DFS(copiaLQ, copiaLQ.get(0));
         ArrayList<Nodo> G_transpuesta = computeGt();
         Nodo nodoInicialGt = getNodoT(LQ.get(0).marcado, G_transpuesta);
         DFS(G_transpuesta, nodoInicialGt);
-        if (copiaLQdesendiente.size()==LQ.size() && numeroTenTinvariant() == t_disparados.size()  ){
+        if (copiaLQdesendiente.size() == LQ.size() && numeroTenTinvariant() == t_disparados.size()) {
             System.out.print("Es reversible\n");
-        }
-        else{
+        } else {
             System.out.print("No es reversible\n");
         }
     }
-    public static void esReversible(){
-        if (copiaLQdesendiente.size()==LQ.size() && t_disparados.size()==t.size()) {
+
+    public static void esReversible() {
+        if (copiaLQdesendiente.size() == LQ.size() && t_disparados.size() == t.size()) {
             System.out.print("Es viva\n");
-        }
-        else{
+        } else {
             System.out.print("No es viva\n");
         }
-}
-    
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -811,9 +821,8 @@ public class RedesPetri {
         m.primerMarcado();
 
         //ArrayList<Nodo> LQt = computeGt();
-
         //System.out.println(LQ.size());
-        ArrayList<int[]> inva = CalculaPInvariantes(mi);
+        /*ArrayList<int[]> inva = CalculaPInvariantes(mi);
         System.out.println("P-invariantes");
         if (!inva.isEmpty()) {
             for (int i = 0; i < inva.size(); i++) {
@@ -823,10 +832,9 @@ public class RedesPetri {
                 }
                 System.out.println("");
             }
-        }
-        else{
+        } else {
             System.out.println("No se obtuvieron p-invariantes");
-        }
+        }*/
         //  System.out.println(LQ.get(0).hijos.get(0).homomorfismo());
         // System.out.println(LQ.get(0).hijos.get(1).homomorfismo());
 
@@ -836,19 +844,18 @@ public class RedesPetri {
         ArrayList<int[]> tinva = CalculaTInvariantes(transi);
         System.out.println("t-invariantes");
         int ctaRepetitiva = 0;
-        if (!tinva.isEmpty()){
+        if (!tinva.isEmpty()) {
             for (int i = 0; i < tinva.size(); i++) {
                 int mtem[] = tinva.get(i);
                 for (int j = 0; j < t.size(); j++) {
-                     System.out.print(mtem[j] + " ");
+                    System.out.print(mtem[j] + " ");
                     if (mtem[j] == 1) {
                         ctaRepetitiva++;
                     }
                 }
                 System.out.println("");
             }
-        }
-         else{
+        } else {
             System.out.println("No se obtuvieron t-invariantes");
         }
         if (ctaRepetitiva == t.size()) {
@@ -885,19 +892,19 @@ public class RedesPetri {
          }System.out.println("");
          }*/
         /*for (int i = 0; i < copiaLQdesendiente.size(); i++) {
-            System.out.println("-------  " + copiaLQdesendiente.get(i).homomorfismo() 
-                    + " -----t inicial  " + copiaLQdesendiente.get(i).tiempoInicial
-                    + "------ t final  " + copiaLQdesendiente.get(i).tiempoFinal);
-            //System.out.println("estado  " + LQ.get(i).homomorfismo());
-        }
-        for (int i = 0; i < LQ.size(); i++) {
-            System.out.println("estado  " + LQ.get(i).homomorfismo());
-        }
-        for (int j = 0; j < copiaLQdesendiente.size(); j++) {
-            System.out.println("estadoc  " + copiaLQdesendiente.get(j).homomorfismo());
-        }
-        for (int d = 0; d < t_disparados.size(); d++) {
-            System.out.println("transiciones disparadas-- " + t_disparados.get(d));
-        }*/
+         System.out.println("-------  " + copiaLQdesendiente.get(i).homomorfismo() 
+         + " -----t inicial  " + copiaLQdesendiente.get(i).tiempoInicial
+         + "------ t final  " + copiaLQdesendiente.get(i).tiempoFinal);
+         //System.out.println("estado  " + LQ.get(i).homomorfismo());
+         }
+         for (int i = 0; i < LQ.size(); i++) {
+         System.out.println("estado  " + LQ.get(i).homomorfismo());
+         }
+         for (int j = 0; j < copiaLQdesendiente.size(); j++) {
+         System.out.println("estadoc  " + copiaLQdesendiente.get(j).homomorfismo());
+         }
+         for (int d = 0; d < t_disparados.size(); d++) {
+         System.out.println("transiciones disparadas-- " + t_disparados.get(d));
+         }*/
     }
 }
