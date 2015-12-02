@@ -532,7 +532,7 @@ public class RedesPetri {
         int multiploTemp = 1;
         int filaTemp[] = new int[mi.length + p.size()];
         int filaActual[] = new int[mi.length + p.size()];
-        int filasAeliminar[]=new int[invariantsTemp.size()];
+        int filasAeliminar[]=new int[invariantsTemp.size()*invariantsTemp.size()];
         Arrays.fill(filasAeliminar, 0);
 
         for (int columna = mi.length; columna < mi.length + p.size(); columna++) {
@@ -565,6 +565,24 @@ public class RedesPetri {
                                 filasAeliminar[fila]=1;
                                 filasAeliminar[i]=1;
                             }
+                            /*else{
+                                if (filaActual[columna]<0){
+                                    multiploTemp = filaActual[columna]*(-1);
+                                    multiploActual = filaTemp[columna];
+                                    int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                    invariantsTemp.add(mt1);
+                                    filasAeliminar[fila]=1;
+                                    filasAeliminar[i]=1;
+                                }
+                                else{
+                                    multiploTemp = filaActual[columna];
+                                    multiploActual = filaTemp[columna]*(-1);
+                                    int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                    invariantsTemp.add(mt1);
+                                    filasAeliminar[fila]=1;
+                                    filasAeliminar[i]=1;
+                                }
+                            }*/
                         } else if (filaActual[columna] < 0 && filaTemp[columna] > 0) {
                             if (filaTemp[columna] % filaActual[columna] == 0) {
                                 multiploActual = filaTemp[columna] / filaActual[columna];
@@ -576,6 +594,24 @@ public class RedesPetri {
                                 filasAeliminar[fila]=1;
                                 filasAeliminar[i]=1;
                             }
+                            /*else{
+                                if (filaActual[columna]<0){
+                                    multiploTemp = filaActual[columna]*(-1);
+                                    multiploActual = filaTemp[columna];
+                                    int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                    invariantsTemp.add(mt1);
+                                    filasAeliminar[fila]=1;
+                                    filasAeliminar[i]=1;
+                                }
+                                else{
+                                    multiploTemp = filaActual[columna];
+                                    multiploActual = filaTemp[columna]*(-1);
+                                    int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                    invariantsTemp.add(mt1);
+                                    filasAeliminar[fila]=1;
+                                    filasAeliminar[i]=1;
+                                }
+                            }*/
                         }
                         multiploActual = 1;
                         multiploTemp = 1;
@@ -601,7 +637,7 @@ public class RedesPetri {
     }
 
     public static ArrayList CalculaPInvariantes(int[][] mi) {
-                ArrayList<int[]> invariantsTemp = new ArrayList();//se usa para iterar
+        ArrayList<int[]> invariantsTemp = new ArrayList();//se usa para iterar
         ArrayList<int[]> invariants = new ArrayList();//devuelve t o p -invariantes
 
         //generar lista de vectores para poder iterar
@@ -619,7 +655,7 @@ public class RedesPetri {
         int multiploTemp = 1;
         int filaTemp[] = new int[mi.length + t.size()];
         int filaActual[] = new int[mi.length + t.size()];
-        int filasAeliminar[]=new int[invariantsTemp.size()];
+        int filasAeliminar[]=new int[invariantsTemp.size()*invariantsTemp.size()];
         Arrays.fill(filasAeliminar, 0);
 
         for (int columna = mi.length; columna < mi.length + t.size(); columna++) {
@@ -630,7 +666,7 @@ public class RedesPetri {
                         cont++;
                     }
                 }
-                if (cont == p.size()) {
+                if (cont == t.size()) {
                     invariants.add(invariantsTemp.remove(tmpo));
                 }
                 cont = 0;
@@ -652,6 +688,24 @@ public class RedesPetri {
                                 filasAeliminar[fila]=1;
                                 filasAeliminar[i]=1;
                             }
+                            /*else{
+                                if (filaActual[columna]<0){
+                                    multiploTemp = filaActual[columna]*(-1);
+                                    multiploActual = filaTemp[columna];
+                                    int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                    invariantsTemp.add(mt1);
+                                    filasAeliminar[fila]=1;
+                                    filasAeliminar[i]=1;
+                                }
+                                else{
+                                    multiploTemp = filaActual[columna];
+                                    multiploActual = filaTemp[columna]*(-1);
+                                    int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                    invariantsTemp.add(mt1);
+                                    filasAeliminar[fila]=1;
+                                    filasAeliminar[i]=1;
+                                }
+                            }*/
                         } else if (filaActual[columna] < 0 && filaTemp[columna] > 0) {
                             if (filaTemp[columna] % filaActual[columna] == 0) {
                                 multiploActual = filaTemp[columna] / filaActual[columna];
@@ -663,6 +717,24 @@ public class RedesPetri {
                                 filasAeliminar[fila]=1;
                                 filasAeliminar[i]=1;
                             }
+                            /*else{
+                                if (filaActual[columna]<0){
+                                    multiploTemp = filaActual[columna]*(-1);
+                                    multiploActual = filaTemp[columna];
+                                    int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                    invariantsTemp.add(mt1);
+                                    filasAeliminar[fila]=1;
+                                    filasAeliminar[i]=1;
+                                }
+                                else{
+                                    multiploTemp = filaActual[columna];
+                                    multiploActual = filaTemp[columna]*(-1);
+                                    int mt1[]= sumaVector(multiploActual, filaActual, multiploTemp, filaTemp);
+                                    invariantsTemp.add(mt1);
+                                    filasAeliminar[fila]=1;
+                                    filasAeliminar[i]=1;
+                                }
+                            }*/
                         }
                         multiploActual = 1;
                         multiploTemp = 1;
@@ -823,7 +895,7 @@ public class RedesPetri {
 
         //ArrayList<Nodo> LQt = computeGt();
         //System.out.println(LQ.size());
-        /*ArrayList<int[]> inva = CalculaPInvariantes(mi);
+        ArrayList<int[]> inva = CalculaPInvariantes(mi);
         System.out.println("P-invariantes");
         if (!inva.isEmpty()) {
             for (int i = 0; i < inva.size(); i++) {
@@ -835,7 +907,7 @@ public class RedesPetri {
             }
         } else {
             System.out.println("No se obtuvieron p-invariantes");
-        }*/
+        }
         //  System.out.println(LQ.get(0).hijos.get(0).homomorfismo());
         // System.out.println(LQ.get(0).hijos.get(1).homomorfismo());
 
