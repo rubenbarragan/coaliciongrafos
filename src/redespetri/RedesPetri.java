@@ -331,7 +331,7 @@ public class RedesPetri {
                     if(t_disparados.contains(temp.tranDisparada)==false){
                         t_disparados.add(temp.tranDisparada);
                     }   
-                    System.out.println("Ya existe");
+                    //System.out.println("Ya existe");
                     grafo_file += padre.homomorfismo() + " -> " + temp.homomorfismo() + "[label=\"" + temp.tranDisparada + "\"];";
                 }
             } else {
@@ -580,11 +580,11 @@ public class RedesPetri {
                 int mtemp[] = invariantsTemp.get(i);
                 for (int jk = 0; jk < mi.length + p.size(); jk++) {
 
-                    System.out.print(mtemp[jk] + " ");
+                    //System.out.print(mtemp[jk] + " ");
                 }
-                System.out.println("");
+                //System.out.println("");
             }
-            System.out.println("");
+            //System.out.println("");
             j++;
         }//fin del while
         return invariants;
@@ -660,11 +660,11 @@ public class RedesPetri {
                 int mtemp[] = invariantsTemp.get(i);
                 for (int jk = 0; jk < mi.length + t.size(); jk++) {
 
-                    System.out.print(mtemp[jk] + " ");
+                    //System.out.print(mtemp[jk] + " ");
                 }
-                System.out.println("");
+                //System.out.println("");
             }
-            System.out.println("");
+            //System.out.println("");
             j++;
         }//fin del while
         return invariants;
@@ -757,6 +757,25 @@ public class RedesPetri {
         
         return 0;
     }
+    public static int numeroTenTinvariant (){
+        int transi[][] = miTranspuesta();
+        ArrayList<int[]> tinva = CalculaTInvariantes(transi);
+        int sumTinv[] = new int[tinva.get(0).length];
+        int numTenTinv = 0;
+        
+        
+        for(int [] tinv : tinva){
+            for (int i = 0; i < tinv.length; i++) {
+                if (tinv[i] == 1) {
+                    sumTinv[i] = tinv[i];
+                }
+            }
+        }
+        for (int j = 0; j < sumTinv.length; j++) {
+            numTenTinv = numTenTinv + sumTinv[j];
+        }
+        return numTenTinv;
+    }
     
     public static void esViva(){
         //copiaLQ = new ArrayList<>(LQ);
@@ -764,20 +783,21 @@ public class RedesPetri {
         ArrayList<Nodo> G_transpuesta = computeGt();
         Nodo nodoInicialGt = getNodoT(LQ.get(0).marcado, G_transpuesta);
         DFS(G_transpuesta, nodoInicialGt);
-        if (copiaLQdesendiente.size()==LQ.size()){
+        if (copiaLQdesendiente.size()==LQ.size() && numeroTenTinvariant() == t_disparados.size()  ){
             System.out.print("Es reversible\n");
-            if (t_disparados.size()==t.size()) {
-                System.out.print("Es viva\n");
-            }
-            else{
-                System.out.print("No es viva\n");
-            }
         }
         else{
-            System.out.print("No es reversible y no es viva\n");
+            System.out.print("No es reversible\n");
         }
     }
-    
+    public static void esReversible(){
+        if (copiaLQdesendiente.size()==LQ.size() && t_disparados.size()==t.size()) {
+            System.out.print("Es viva\n");
+        }
+        else{
+            System.out.print("No es viva\n");
+        }
+}
     
     /**
      * @param args the command line arguments
@@ -785,12 +805,12 @@ public class RedesPetri {
     public static void main(String[] args) {
         RedesPetri m = new RedesPetri();
 
-        m.leerArchivo("redes/no acotada 3 estados.xml");
+        m.leerArchivo("redes/Petri net 1.xml");
         //generar nodos
         //eliminar comentario para poder realizar las pruebas
         m.primerMarcado();
 
-        ArrayList<Nodo> LQt = computeGt();
+        //ArrayList<Nodo> LQt = computeGt();
 
         //System.out.println(LQ.size());
         ArrayList<int[]> inva = CalculaPInvariantes(mi);
@@ -858,6 +878,7 @@ public class RedesPetri {
             System.out.println("No es repetitiva");
         }
         esViva();
+        esReversible();
         /* for (int i = 0; i < t.size(); i++) {
          for (int j = 0; j < p.size(); j++) {
          System.out.print(transi[i][j]);
