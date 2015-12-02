@@ -368,7 +368,7 @@ public class RedesPetri {
                 }
             }
             if (mayoriza == n.length) {
-                Acotada = false;
+                //Acotada = false;
                 for (int i = 0; i < n.length; i++) {
                     if (m[i] > n[i]) {
                         m[i] = -1;
@@ -424,6 +424,7 @@ public class RedesPetri {
         for (Nodo n : LQ) { //Checamos si hay algún nodo terminal en el arbol de covertura.
             if (n.tieneW) {
                 Conservativa = false;
+                Acotada=false;
             } else if (!(n.suma == minit)) {
                 Conservativa = false;
             }
@@ -460,7 +461,7 @@ public class RedesPetri {
             generarMarcados(LP.get(0));
         }
 
-////        grafo_file += "}";
+        grafo_file += "}";
         try {
             //System.out.println(grafo_file);
             guardar(grafo_file);
@@ -861,11 +862,7 @@ public class RedesPetri {
         if (ctaRepetitiva == t.size()) {
             Repetitiva = true;
         }
-        if (Acotada) {
-            System.out.println("Acotada");
-        } else {
-            System.out.println("No Acotada");
-        }
+        
         LibreDeBloqueo = !esLibreDeBloqueo();
         if (LibreDeBloqueo) {
             System.out.println("Libre de bloqueo");
@@ -878,6 +875,11 @@ public class RedesPetri {
             System.out.println("Estrictamente conservativa");
         } else {
             System.out.println("No es conservativa");
+        }
+        if (Acotada) {
+            System.out.println("Acotada");
+        } else {
+            System.out.println("No Acotada");
         }
         if (Repetitiva) {
             System.out.println("Si es repetitiva");
@@ -906,5 +908,7 @@ public class RedesPetri {
          for (int d = 0; d < t_disparados.size(); d++) {
          System.out.println("transiciones disparadas-- " + t_disparados.get(d));
          }*/
+      
+        
     }
 }
