@@ -318,8 +318,10 @@ public class RedesPetri {
 
                     LP.add(temp);
 
-                    if (t_disparados.contains(temp.tranDisparada) == false) {
-                        t_disparados.add(temp.tranDisparada);
+                    for (String t : temp.tranDisparada) {
+                        if (t_disparados.contains(t) == false) {
+                            t_disparados.add(t);
+                        }
                     }
                     //anadimos a grafo_file para el archivo node1 -> node2 [label="linea1"];
                     grafo_file += padre.homomorfismo() + " -> " + temp.homomorfismo() + "[label=\"" + temp.tranDisparada + "\"];";
@@ -327,12 +329,26 @@ public class RedesPetri {
                 } else {
 
                     if (!(isinQ(temp) == null)) { //Está en Q
-                        padre.hijos.add(isinQ(temp));
+                        //padre.hijos.add(isinQ(temp));
+                        Nodo n = isInHijos(padre, temp);
+                        if (n == null) {
+                            padre.hijos.add(isinQ(temp));
+                        } else {
+                            n.addTrans(t.get(j).name);
+                        }
                     } else { //Está en P.
-                        padre.hijos.add(isinP(temp));
+//                        padre.hijos.add(isinP(temp));
+                        Nodo n = isInHijos(padre, temp);
+                        if (n == null) {
+                            padre.hijos.add(isinP(temp));
+                        } else {
+                            n.addTrans(t.get(j).name);
+                        }
                     }
-                    if (t_disparados.contains(temp.tranDisparada) == false) {
-                        t_disparados.add(temp.tranDisparada);
+                    for (String t : temp.tranDisparada) {
+                        if (t_disparados.contains(t) == false) {
+                            t_disparados.add(t);
+                        }
                     }
                     //System.out.println("Ya existe");
                     grafo_file += padre.homomorfismo() + " -> " + temp.homomorfismo() + "[label=\"" + temp.tranDisparada + "\"];";
@@ -350,6 +366,15 @@ public class RedesPetri {
         }
         System.out.println("");
 
+    }
+
+    public Nodo isInHijos(Nodo padre, Nodo nodoabuscar) {
+        for (Nodo h : padre.hijos) {
+            if (nodoabuscar.homomorfismo().equals(h.homomorfismo())) {
+                return h;
+            }
+        }
+        return null;
     }
 
     public void mayoriza(Nodo x) {
@@ -546,7 +571,6 @@ public class RedesPetri {
         Arrays.fill(filasAeliminar, 0);
 
         //imprimirLista(invariantsTemp);
-
         for (int columna = mi.length; columna < mi.length + p.size(); columna++) {
             for (int tmpo = 0; tmpo < invariantsTemp.size(); tmpo++) {
                 filaTemp = invariantsTemp.get(tmpo);
@@ -809,10 +833,8 @@ public class RedesPetri {
                 temp.hijos.add(getNodoT(nodo.marcado, LQt));
             }
         }
-        
+
         //aqui poner lo de acomodas los nodos de  lqt
-        
-        
         return LQt;
     }
 
@@ -838,7 +860,10 @@ public class RedesPetri {
             {
                 tInCFC.add("cambio");
                 DFS_Visit(nodoTemp);
-                tInCFC.add(nodoTemp.tranDisparada);
+//                tInCFC.add(nodoTemp.tranDisparada);
+                for (String t : nodoTemp.tranDisparada) {
+                    tInCFC.add(t);
+                }
             }
         }
         System.out.print("aqui cambia\n");
@@ -853,10 +878,13 @@ public class RedesPetri {
         for (int h = 0; h < nodoTemp.hijos.size(); h++) {
             if (nodoTemp.hijos.get(h).color.equals("WHITE")) {
                 nodoTemp.hijos.get(h).padre = nodoTemp;
-                tInCFC.add(nodoTemp.hijos.get(h).tranDisparada);
+//                tInCFC.add(nodoTemp.hijos.get(h).tranDisparada);
+                for (String t : nodoTemp.hijos.get(h).tranDisparada) {
+                    tInCFC.add(t);
+                }
                 DFS_Visit(nodoTemp.hijos.get(h));
             }
-        } 
+        }
         nodoTemp.color = "BLACK";
         time = time + 1;
         nodoTemp.tiempoFinal = time;
@@ -887,7 +915,7 @@ public class RedesPetri {
     }
 
     public static void esReversible() {
-        ArrayList<Nodo>copiaLQ = new ArrayList<>(LQ);
+        ArrayList<Nodo> copiaLQ = new ArrayList<>(LQ);
         DFS(copiaLQ, copiaLQ.get(0));
         ArrayList<Nodo> G_transpuesta = computeGt(copiaLQdesendiente);
         //Nodo nodoInicialGt = getNodoT(LQ.get(0).marcado, G_transpuesta);
@@ -913,7 +941,7 @@ public class RedesPetri {
     public static void main(String[] args) {
         RedesPetri m = new RedesPetri();
 
-        m.leerArchivo("C:\\Users\\Pedro\\Documents\\NetBeansProjects\\coaliciongrafos\\redes\\Petri net 1.xml");
+        m.leerArchivo("redes/Petri net 1.xml");
         //generar nodos
         //eliminar comentario para poder realizar las pruebas
         m.primerMarcado();
@@ -1007,14 +1035,14 @@ public class RedesPetri {
          System.out.println("transiciones disparadas-- " + t_disparados.get(d));
          }*/
         for (int i = 0; i < tInCFC.size(); i++) {
-            System.out.print(tInCFC.get(i).toString()+"\n");
+            System.out.print(tInCFC.get(i).toString() + "\n");
         }
-        for (Nodo padre: LQ) {
-            System.out.print("Marcado:\n "+padre.homomorfismo()+"hijos:\n");
-            for(Nodo hijo : padre.hijos){
-                System.out.print(hijo.homomorfismo()+"\n");
+        for (Nodo padre : LQ) {
+            System.out.print("Marcado:\n " + padre.homomorfismo() + "hijos:\n");
+            for (Nodo hijo : padre.hijos) {
+                System.out.print(hijo.homomorfismo() + "\n");
             }
         }
-        
+
     }
 }

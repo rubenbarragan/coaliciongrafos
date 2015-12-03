@@ -9,7 +9,8 @@ import java.util.ArrayList;
 
 /**
  *
- * @author HectorJalil, Edwin Jimenez, Ruben Barragan, Pedro, Ilse, Osvaldo, Diego
+ * @author HectorJalil, Edwin Jimenez, Ruben Barragan, Pedro, Ilse, Osvaldo,
+ * Diego
  */
 public class Nodo {
 
@@ -18,7 +19,8 @@ public class Nodo {
     ArrayList<Nodo> hijos;
     int[] marcado;
     Nodo padre;
-    String tranDisparada;
+    // String tranDisparada;
+    ArrayList<String> tranDisparada = new ArrayList();
     boolean Terminal = false;
     boolean Duplicado = false;
     String color;
@@ -28,12 +30,28 @@ public class Nodo {
     public Nodo(int[] marcado, Nodo padre, String tran) {
         this.marcado = marcado;
         this.padre = padre;
-        this.tranDisparada = tran;
+        tranDisparada.add(tran);
         hijos = new ArrayList();
         suma = sumarNodo();
         this.color = "WHITE";
         this.tiempoInicial = 0;
         this.tiempoFinal = 0;
+    }
+    
+    //Sobreescrito.
+    public Nodo(int[] marcado, Nodo padre, ArrayList trans) {
+        this.marcado = marcado;
+        this.padre = padre;
+        tranDisparada = trans;
+        hijos = new ArrayList();
+        suma = sumarNodo();
+        this.color = "WHITE";
+        this.tiempoInicial = 0;
+        this.tiempoFinal = 0;
+    }
+
+    public void addTrans(String s) {
+        tranDisparada.add(s);
     }
 
     public void setMarcado(int m[]) {
@@ -44,7 +62,7 @@ public class Nodo {
         suma = 0;
         for (int i = 0; i < marcado.length; i++) {
             if (marcado[i] == -1) {
-                tieneW=true;
+                tieneW = true;
             } else {
                 suma += marcado[i];
             }
