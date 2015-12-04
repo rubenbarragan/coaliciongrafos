@@ -30,7 +30,7 @@ public class RedesPetri {
 
     String grafo_file = "digraph G {";
 
-    static boolean Repetitiva = false;
+    static boolean Repetitiva = true;
     static boolean Conservativa = true;
     static boolean Acotada = true;
     static boolean LibreDeBloqueo = true;
@@ -1060,23 +1060,22 @@ public class RedesPetri {
         System.out.println("Calculo de t invariantes");
         ArrayList<int[]> tinva = CalculaTInvariantes(transi);
         System.out.println("t-invariantes");
-        int ctaRepetitiva = 0;
+        int []ctaRepetitiva = new int[t.size()];
         if (!tinva.isEmpty()) {
             for (int i = 0; i < tinva.size(); i++) {
                 int mtem[] = tinva.get(i);
                 for (int j = 0; j < t.size(); j++) {
                     System.out.print(mtem[j] + " ");
-                    if (mtem[j] == 1) {
-                        ctaRepetitiva++;
-                    }
+                    ctaRepetitiva[j]+=mtem[j];
                 }
                 System.out.println("");
             }
         } else {
             System.out.println("No se obtuvieron t-invariantes");
         }
-        if (ctaRepetitiva == t.size()) {
-            Repetitiva = true;
+        for(int i=0; i<ctaRepetitiva.length;i++){
+            if(ctaRepetitiva[i]==0)
+                Repetitiva=false;
         }
         LibreDeBloqueo = !esLibreDeBloqueo();
         if (LibreDeBloqueo) {
