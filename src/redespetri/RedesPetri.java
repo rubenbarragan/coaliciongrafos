@@ -839,11 +839,18 @@ public class RedesPetri {
     }
 
     public static boolean esComFueCon() {
-        boolean CFC = true;
+        boolean CFC = false;
         int transInCFC[] = new int[t.size()];
+        int AllCFC[] = new int[copiaLQdesendiente.size()];
         boolean temp = true;
+        int iteradorListaCFC=-1;
+        ArrayList<Nodo> listaDeCFCallT = new ArrayList<>();
+        int indexListaCFC = -1;
+        String x="";
+        String y="";
         
         for (ArrayList<Nodo> listaCFC : copiaLQdesendiente) {
+            iteradorListaCFC++;
             for (Nodo nodo : listaCFC) {
                 for (Nodo hijos : nodo.hijos) {
                     for (String transi : hijos.tranDisparada) {
@@ -851,8 +858,15 @@ public class RedesPetri {
                             String c = transi.substring(1);
                             int p = Integer.parseInt(c);
                             transInCFC[p] = 1;
+//                            for (transicion transTmp: t) {
+//                                if (transTmp.name == transi){
+//                                    
+//                                    transInCFC[t.indexOf(transTmp)] = 1;
+//                                }
+//                            }
+                            
+                            
                         }
-
                     }
                 }
             }
@@ -862,7 +876,39 @@ public class RedesPetri {
                 }
             }
             if (temp == true) {
-                CFC = true;
+                listaDeCFCallT = listaCFC;
+                AllCFC[iteradorListaCFC]=1;
+                indexListaCFC = iteradorListaCFC;
+            }
+            Arrays.fill(transInCFC, 0);
+            temp=true;
+        }
+        iteradorListaCFC = -1;
+        for(ArrayList<Nodo> listaCNFC: copiaLQdesendiente){
+            iteradorListaCFC++;
+            if(indexListaCFC != iteradorListaCFC){
+                for(Nodo iterandoN : listaCNFC){
+
+                    Nodo nodoAnalizando = getNodoT(iterandoN.marcado, LQ);
+
+                    for(int s = 0; s<listaDeCFCallT.size();s++){
+                        Nodo verMarcado = listaDeCFCallT.get(s);
+                        for(Nodo hijositer: nodoAnalizando.hijos ){
+                            y=verMarcado.homomorfismo();
+                            x=hijositer.homomorfismo();
+                            if(x.equals(y) && !listaDeCFCallT.contains(iterandoN) ){
+                                listaDeCFCallT.add(iterandoN);
+                                AllCFC[iteradorListaCFC]=1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        CFC=true;
+        for (int r = 0; r < copiaLQdesendiente.size(); r++) {
+            if (AllCFC[r] != 1) {
+                CFC = false;
             }
         }
         return CFC;
@@ -965,7 +1011,7 @@ public class RedesPetri {
         System.out.print("segunfaaaa\n");
 
         DFS(G_transpuestaDesentiente, G_transpuestaDesentiente.get(0));
-        if (copiaLQdesendiente.size() == 1) {
+        if (copiaLQdesendiente.size() == 1 && numeroTenTinvariant() == t_disparados.size()) {
             System.out.print("Es reversible\n");
         } else {
             System.out.print("No es reversible\n");
@@ -1032,7 +1078,6 @@ public class RedesPetri {
         if (ctaRepetitiva == t.size()) {
             Repetitiva = true;
         }
-
         LibreDeBloqueo = !esLibreDeBloqueo();
         if (LibreDeBloqueo) {
             System.out.println("Libre de bloqueo");
