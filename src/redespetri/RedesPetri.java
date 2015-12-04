@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,13 +44,12 @@ public class RedesPetri {
     static ArrayList<arco> a = new ArrayList();
     static ArrayList<Nodo> LP = new ArrayList();//lista de nodos que se van formando, pendientes
     static ArrayList<Nodo> LQ = new ArrayList();//nodos ya procesados
-    static ArrayList<Nodo> copiaLQdesendiente = new ArrayList<>();//nodos ya procesados
+    static ArrayList<ArrayList<Nodo>> copiaLQdesendiente = new ArrayList<>();//nodos ya procesados
     static ArrayList<String> tInCFC = new ArrayList<>();
     static int time = 0;
 
     public void leerArchivo(String file) {
         try {
-
             File fXmlFile = new File(file);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -401,16 +401,16 @@ public class RedesPetri {
                     }
                 }
                 x.setMarcado(m);
-//                for (Nodo hijo : x.hijos) {
-//                    if (hijo.homomorfismo().equals(temp.homomorfismo())) {
-//                        repetido = true;
-//                    }
-//                }
-//                if (repetido == false) {
-//                    x.hijos.add(temp);
-//                }
+                for (Nodo hijo : x.hijos) {
+                    if (hijo.homomorfismo().equals(temp.homomorfismo())) {
+                        repetido = true;
+                    }
+                }
+                if (repetido == false) {
+                    x.hijos.add(temp);
+                }
             }
-//            repetido = false;
+            repetido = false;
             temp = temp.padre;
         }
     }
@@ -838,6 +838,53 @@ public class RedesPetri {
         return LQt;
     }
 
+    public static boolean esComFueCon() {
+        boolean CFC = true;
+        int transInCFC[] = new int[t.size()];
+        boolean temp = true;
+        
+        for (ArrayList<Nodo> listaCFC : copiaLQdesendiente) {
+            for (Nodo nodo : listaCFC) {
+                for (Nodo hijos : nodo.hijos) {
+                    for (String transi : hijos.tranDisparada) {
+                        if (transi != "Ninguna") {
+                            String c = transi.substring(1);
+                            int p = Integer.parseInt(c);
+                            transInCFC[p] = 1;
+                        }
+
+                    }
+                }
+            }
+            for (int z = 0; z < t.size(); z++) {
+                if (transInCFC[z] != 1) {
+                    temp = false;
+                }
+            }
+            if (temp == true) {
+                CFC = true;
+            }
+        }
+        return CFC;
+    }
+
+    public static ArrayList<Nodo> acomodar(ArrayList<Nodo> desordenada, ArrayList<Nodo> ordenada) {
+
+        ArrayList<Nodo> transAcomodada = new ArrayList<>();
+        ArrayList<Nodo> transAcomodadafinal = new ArrayList<>();
+        
+        for (int i = ordenada.size()-1; i >=0; i--) {
+            transAcomodada.add(ordenada.get(i));
+        }
+        
+        for (int i = 0; i < ordenada.size(); i++) {
+            transAcomodadafinal.add(getNodoT(transAcomodada.get(i).marcado, desordenada));
+        }
+
+        return transAcomodadafinal;
+
+    }
+
     public static Nodo getNodoT(int[] marcado, ArrayList<Nodo> LQt) {
         Nodo aux = null;
         for (Nodo nodo : LQt) {
@@ -851,26 +898,25 @@ public class RedesPetri {
     public static int DFS(ArrayList<Nodo> G, Nodo u) {
         time = 0;
         tInCFC.clear();
+        int indiceCFC = 0;
+        copiaLQdesendiente.clear();
         for (Nodo nodo : G) {
             nodo.padre = null;
             nodo.color = "WHITE";
         }
         for (Nodo nodoTemp : G) {
-            if (nodoTemp.color.equals("WHITE"));
-            {
+            if ("WHITE".equals(nodoTemp.color)) {
                 tInCFC.add("cambio");
-                DFS_Visit(nodoTemp);
-//                tInCFC.add(nodoTemp.tranDisparada);
-                for (String t : nodoTemp.tranDisparada) {
-                    tInCFC.add(t);
-                }
+                copiaLQdesendiente.add(new ArrayList<Nodo>());
+                DFS_Visit(G, nodoTemp, indiceCFC);
+                indiceCFC++;
             }
         }
-        System.out.print("aqui cambia\n");
+
         return 0;
     }
 
-    public static int DFS_Visit(Nodo nodoTemp) {
+    public static int DFS_Visit(ArrayList<Nodo> G, Nodo nodoTemp, int indiceCFCtmp) {
         String trans = "";
         time = time + 1;
         nodoTemp.tiempoInicial = time;
@@ -878,17 +924,14 @@ public class RedesPetri {
         for (int h = 0; h < nodoTemp.hijos.size(); h++) {
             if (nodoTemp.hijos.get(h).color.equals("WHITE")) {
                 nodoTemp.hijos.get(h).padre = nodoTemp;
-//                tInCFC.add(nodoTemp.hijos.get(h).tranDisparada);
-                for (String t : nodoTemp.hijos.get(h).tranDisparada) {
-                    tInCFC.add(t);
-                }
-                DFS_Visit(nodoTemp.hijos.get(h));
+                tInCFC.add(nodoTemp.homomorfismo());
+                DFS_Visit(G, nodoTemp.hijos.get(h), indiceCFCtmp);
             }
         }
         nodoTemp.color = "BLACK";
         time = time + 1;
         nodoTemp.tiempoFinal = time;
-        copiaLQdesendiente.add(nodoTemp);
+        copiaLQdesendiente.get(indiceCFCtmp).add(nodoTemp);
 
         return 0;
     }
@@ -917,10 +960,12 @@ public class RedesPetri {
     public static void esReversible() {
         ArrayList<Nodo> copiaLQ = new ArrayList<>(LQ);
         DFS(copiaLQ, copiaLQ.get(0));
-        ArrayList<Nodo> G_transpuesta = computeGt(copiaLQdesendiente);
-        //Nodo nodoInicialGt = getNodoT(LQ.get(0).marcado, G_transpuesta);
-        DFS(G_transpuesta, G_transpuesta.get(0));
-        if (copiaLQdesendiente.size() == LQ.size() && numeroTenTinvariant() == t_disparados.size()) {
+        ArrayList<Nodo> G_transpuesta = computeGt(copiaLQdesendiente.get(0));
+        ArrayList<Nodo> G_transpuestaDesentiente= acomodar(G_transpuesta, copiaLQdesendiente.get(0));
+        System.out.print("segunfaaaa\n");
+
+        DFS(G_transpuestaDesentiente, G_transpuestaDesentiente.get(0));
+        if (copiaLQdesendiente.size() == 1) {
             System.out.print("Es reversible\n");
         } else {
             System.out.print("No es reversible\n");
@@ -928,7 +973,7 @@ public class RedesPetri {
     }
 
     public static void esViva() {
-        if (copiaLQdesendiente.size() == LQ.size() && t_disparados.size() == t.size()) {
+        if (esComFueCon()) {
             System.out.print("Es viva\n");
         } else {
             System.out.print("No es viva\n");
@@ -1034,15 +1079,15 @@ public class RedesPetri {
          for (int d = 0; d < t_disparados.size(); d++) {
          System.out.println("transiciones disparadas-- " + t_disparados.get(d));
          }*/
-        for (int i = 0; i < tInCFC.size(); i++) {
-            System.out.print(tInCFC.get(i).toString() + "\n");
-        }
-        for (Nodo padre : LQ) {
-            System.out.print("Marcado:\n " + padre.homomorfismo() + "hijos:\n");
-            for (Nodo hijo : padre.hijos) {
-                System.out.print(hijo.homomorfismo() + "\n");
-            }
-        }
+//        for (int i = 0; i < tInCFC.size(); i++) {
+//            System.out.print(tInCFC.get(i).toString() + "\n");
+//        }
+//        for (Nodo padre : LQ) {
+//            System.out.print("Marcado:\n " + padre.homomorfismo() + "hijos:\n");
+//            for (Nodo hijo : padre.hijos) {
+//                System.out.print(hijo.homomorfismo() + "\n");
+//            }
+//        }
 
     }
 }
