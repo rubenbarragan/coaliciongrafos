@@ -331,16 +331,22 @@ public class RedesPetri {
                     if (!(isinQ(temp) == null)) { //Está en Q
                         //padre.hijos.add(isinQ(temp));
                         Nodo n = isInHijos(padre, temp);
+                       
                         if (n == null) {
-                            padre.hijos.add(isinQ(temp));
-                        } else {
+                             padre.hijos.add(isinQ(temp));//esta en q devuelve un nodo
+                            Nodo tempo=isinQ(temp);
+                            tempo.addTrans(temp.tranDisparada.get(0));
+                       } else {
                             n.addTrans(t.get(j).name);
                         }
                     } else { //Está en P.
 //                        padre.hijos.add(isinP(temp));
                         Nodo n = isInHijos(padre, temp);
                         if (n == null) {
-                            padre.hijos.add(isinP(temp));
+                             padre.hijos.add(isinP(temp));//esta en q devuelve un nodo
+                            Nodo tempo=isinP(temp);
+                            tempo.addTrans(temp.tranDisparada.get(0));
+                      
                         } else {
                             n.addTrans(t.get(j).name);
                         }
